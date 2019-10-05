@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Azure.ServiceBus;
 using Microsoft.Azure.ServiceBus.Core;
@@ -13,7 +14,11 @@ namespace SessionQueue
 
     private const string _queueName = "session-queue";
 
-    private const int _lineCount = 10, _lineSize = 20;
+    private const int _lineCount = 5, _lineSize = 5;
+
+    private static readonly CountdownEvent _countdownEvent = new CountdownEvent(_lineCount * _lineSize);
+
+    private static readonly Random _random = new Random();
 
     public static async Task Main(string[] args)
     {
@@ -22,10 +27,61 @@ namespace SessionQueue
         await initQueueAsync();
 
         await sendMessagesAsync();
+
+        registerSessionHandlers();
+
+        // Block the thread here. Waiting for the signal for all messages are processed.
+        _countdownEvent.Wait();
+
+        Console.WriteLine("Done");
       }
       catch (Exception ex)
       {
         Console.WriteLine(ex.Message);
+      }
+    }
+
+    private static void registerSessionHandlers()
+    {
+      int clientCount = 3; // The number of QueueClient works in parallel to simulate a distributed system.
+
+      for (int i = 0; i < clientCount; i++)
+      {
+        var queueClient = new QueueClient(_connString, _queueName);
+
+        var handlerOptions = new SessionHandlerOptions(exceptionHandlerAsync)
+        {
+          // Maximum number of concurrent calls to the callback "processSessionMessagesAsync".
+          // The method can be called with a message for 2 unique session Id's in parallel.
+          MaxConcurrentSessions = 2,
+          MessageWaitTimeout    = TimeSpan.FromSeconds(1),
+          AutoComplete          = false
+        };
+
+        queueClient.RegisterSessionHandler(processSessionMessagesAsync, handlerOptions);
+      }
+    }
+
+    private static async Task processSessionMessagesAsync(
+      IMessageSession session,
+      Message message,
+      CancellationToken cancelToken)
+    {
+      string consoleMessage = $"Received Session: '{session.SessionId}' | SequenceNumber: {message.SystemProperties.SequenceNumber} | Body: '{Encoding.UTF8.GetString(message.Body)}'.";
+
+      if (_random.NextDouble() <= 0.05)
+      {
+        await session.AbandonAsync(message.SystemProperties.LockToken);
+
+        Console.WriteLine("Abandon - " + consoleMessage);
+      }
+      else
+      {
+        await session.CompleteAsync(message.SystemProperties.LockToken);
+
+        Console.WriteLine(consoleMessage);
+
+        _countdownEvent.Signal();
       }
     }
 
@@ -62,6 +118,23 @@ namespace SessionQueue
       await managementClient.CreateQueueAsync(queueDescription);
 
       await managementClient.CloseAsync();
+    }
+
+    private static Task exceptionHandlerAsync(ExceptionReceivedEventArgs eventArgs)
+    {
+      if (eventArgs.Exception is OperationCanceledException)
+        return Task.CompletedTask;
+
+      Console.WriteLine($"Message handler encountered an exception {eventArgs.Exception}.");
+
+      var context = eventArgs.ExceptionReceivedContext;
+
+      Console.WriteLine("Exception context for troubleshooting:");
+      Console.WriteLine($"- Endpoint: {context.Endpoint}");
+      Console.WriteLine($"- Entity Path: {context.EntityPath}");
+      Console.WriteLine($"- Executing Action: {context.Action}");
+
+      return Task.CompletedTask;
     }
   }
 }
