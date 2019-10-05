@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.Azure.ServiceBus;
 using Microsoft.Azure.ServiceBus.Core;
 using Microsoft.Azure.ServiceBus.Management;
+using StackExchange.Redis;
 
 namespace SessionQueue
 {
@@ -19,6 +20,8 @@ namespace SessionQueue
     private static readonly CountdownEvent _countdownEvent = new CountdownEvent(_lineCount * _lineSize);
 
     private static readonly Random _random = new Random();
+
+    private static IDatabase _rediDB;
 
     public static async Task Main(string[] args)
     {
@@ -43,6 +46,8 @@ namespace SessionQueue
 
     private static void registerSessionHandlers()
     {
+      _rediDB = ConnectionMultiplexer.Connect("localhost:6379").GetDatabase();
+
       int clientCount = 3; // The number of QueueClient works in parallel to simulate a distributed system.
 
       for (int i = 0; i < clientCount; i++)
@@ -67,19 +72,23 @@ namespace SessionQueue
       Message message,
       CancellationToken cancelToken)
     {
-      string consoleMessage = $"Received Session: '{session.SessionId}' | SequenceNumber: {message.SystemProperties.SequenceNumber} | Body: '{Encoding.UTF8.GetString(message.Body)}'.";
+      string body = Encoding.UTF8.GetString(message.Body);
+
+      //string consoleMessage = $"Received Session: '{session.SessionId}' | SequenceNumber: {message.SystemProperties.SequenceNumber} | Body: '{body}'.";
 
       if (_random.NextDouble() <= 0.05)
       {
         await session.AbandonAsync(message.SystemProperties.LockToken);
 
-        Console.WriteLine("Abandon - " + consoleMessage);
+        //Console.WriteLine("Abandon - " + consoleMessage);
       }
       else
       {
         await session.CompleteAsync(message.SystemProperties.LockToken);
 
-        Console.WriteLine(consoleMessage);
+        //Console.WriteLine(consoleMessage);
+
+        await _rediDB.ListRightPushAsync(message.SessionId, body); // Check values: LRANGE Line-1 0 -1
 
         _countdownEvent.Signal();
       }
@@ -101,6 +110,8 @@ namespace SessionQueue
 
           await messageSender.SendAsync(message);
         }
+
+        Console.WriteLine($"Sent: {sessionId}.");
       }
 
       await messageSender.CloseAsync();
