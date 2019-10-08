@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -102,14 +103,16 @@ namespace SessionQueue
       {
         string sessionId = $"Line-{i}";
 
+        var messages = new List<Message>(_lineSize);
+
         for (int j = 0; j < _lineSize; j++)
         {
           byte[] body = Encoding.UTF8.GetBytes($"Pos-{j}");
 
-          Message message = new Message(body) { SessionId = sessionId };
-
-          await messageSender.SendAsync(message);
+          messages.Add(new Message(body) { SessionId = sessionId });
         }
+
+        await messageSender.SendAsync(messages);
 
         Console.WriteLine($"Sent: {sessionId}.");
       }
