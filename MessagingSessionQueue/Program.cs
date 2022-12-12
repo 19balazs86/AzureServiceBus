@@ -1,7 +1,6 @@
 ﻿using Azure.Messaging.ServiceBus;
 using Azure.Messaging.ServiceBus.Administration;
 using StackExchange.Redis;
-using System.Text;
 
 namespace MessagingSessionQueue
 {
@@ -86,7 +85,7 @@ namespace MessagingSessionQueue
 
             ServiceBusReceivedMessage message = args.Message;
 
-            string body = Encoding.UTF8.GetString(message.Body);
+            string body = message.Body.ToString(); // Instead of Encoding.UTF8.GetString(message.Body), but doing it internally.
 
             string consoleMessage = $"Received Session: '{args.SessionId}' | TimeToProcess: {timeToProcess.Seconds} | SequenceNumber: {message.SequenceNumber} | Body: '{body}'.";
 
@@ -125,7 +124,7 @@ namespace MessagingSessionQueue
 
                 for (int j = 1; j <= _lineSize; j++)
                 {
-                    byte[] body = Encoding.UTF8.GetBytes($"Pos-{j}");
+                    BinaryData body = BinaryData.FromString($"Pos-{j}"); // Instead of Encoding.UTF8.GetBytes, but doing it internally.
 
                     messages.Add(new ServiceBusMessage(body) { SessionId = sessionId });
                 }
