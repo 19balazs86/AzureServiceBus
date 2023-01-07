@@ -20,18 +20,23 @@ Get-AzResourceGroup -Name $resGroupName -Location $location -ErrorVariable notPr
 
 if ($notPresent)
 {
-  New-AzResourceGroup -Name $resGroupName -Location $location
+    New-AzResourceGroup -Name $resGroupName -Location $location
 }
 
 Get-AzServiceBusNamespace `
-  -ResourceGroupName $resGroupName `
-  -NamespaceName $serviceBusName `
-  -ErrorVariable notPresent `
-  -ErrorAction SilentlyContinue | Out-Null
+    -ResourceGroupName $resGroupName `
+    -NamespaceName $serviceBusName `
+    -ErrorVariable notPresent `
+    -ErrorAction SilentlyContinue | Out-Null
 
 if ($notPresent)
 {
-  New-AzResourceGroup -Name $resGroupName -Location $location
+    New-AzServiceBusNamespace `
+        -ResourceGroupName $resGroupName `
+        -Name $serviceBusName `
+        -Location $location `
+        -SkuName $sku `
+        -MinimumTlsVersion 1.2
 }
 
 $keys = Get-AzServiceBusKey -ResourceGroupName $resGroupName -Namespace $serviceBusName -Name "RootManageSharedAccessKey"
