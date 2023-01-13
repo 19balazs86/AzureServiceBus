@@ -20,6 +20,18 @@ namespace MessagingSessionQueue
 
         public static async Task Main(string[] args)
         {
+            // Azure .NET SDKs
+            // https://azure.github.io/azure-sdk/releases/latest/dotnet.html
+            
+            // Example: https://kaylumah.nl/2022/02/21/working-with-azure-sdk-for-dotnet.html
+            // For DI container using the package: Microsoft.Extensions.Azure
+            //services.AddAzureClients(clients =>
+            //{
+            //    clients.AddServiceBusAdministrationClient(...);
+            //    clients.AddServiceBusClient(...);
+            //    clients.AddBlobServiceClient(...); // Other azure services can be added...
+            //});
+            
             try
             {
                 ArgumentException.ThrowIfNullOrEmpty(_connString, nameof(_connString));
