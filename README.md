@@ -14,7 +14,6 @@ In this project, we utilize the [Session feature](https://docs.microsoft.com/en-
 ### Service Bus - Resources
 
 - [Azure Service Bus Messaging documentation](https://learn.microsoft.com/en-us/azure/service-bus-messaging/service-bus-messaging-overview) 📚
-
 - [Azure.Messaging.ServiceBus](https://github.com/Azure/azure-sdk-for-net/tree/Azure.Messaging.ServiceBus_7.11.1/sdk/servicebus/Azure.Messaging.ServiceBus) 👤 | [Examples](https://github.com/Azure/azure-sdk-for-net/tree/Azure.Messaging.ServiceBus_7.11.1/sdk/servicebus/Azure.Messaging.ServiceBus#examples) | [Troubleshooting](https://github.com/Azure/azure-sdk-for-net/blob/main/sdk/servicebus/Azure.Messaging.ServiceBus/TROUBLESHOOTING.md)
 - [**Azure SDK** API reference](https://learn.microsoft.com/en-us/dotnet/api/overview/azure) 📚
   - [Azure.Messaging.ServiceBus Namespace](https://learn.microsoft.com/en-us/dotnet/api/azure.messaging.servicebus) 📚*API reference*
@@ -22,7 +21,6 @@ In this project, we utilize the [Session feature](https://docs.microsoft.com/en-
 ##### Guide for migrating to Azure.Messaging.ServiceBus from Microsoft.Azure.ServiceBus
 
 - [Migrating guide](https://github.com/Azure/azure-sdk-for-net/blob/main/sdk/servicebus/Azure.Messaging.ServiceBus/MigrationGuide.md) 👤*Azure*
-
 - [Migrating to the New Azure Service Bus SDK](https://markheath.net/post/migrating-to-new-servicebus-sdk) 📓*Mark Heath*
 
 ##### Deprecated - Service Bus - Resources
