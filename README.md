@@ -17,6 +17,7 @@ In this project, we utilize the [Session feature](https://docs.microsoft.com/en-
 - [Azure.Messaging.ServiceBus](https://github.com/Azure/azure-sdk-for-net/tree/Azure.Messaging.ServiceBus_7.11.1/sdk/servicebus/Azure.Messaging.ServiceBus) 👤 | [Examples](https://github.com/Azure/azure-sdk-for-net/tree/Azure.Messaging.ServiceBus_7.11.1/sdk/servicebus/Azure.Messaging.ServiceBus#examples) | [Troubleshooting](https://github.com/Azure/azure-sdk-for-net/blob/main/sdk/servicebus/Azure.Messaging.ServiceBus/TROUBLESHOOTING.md)
 - [**Azure SDK** API reference](https://learn.microsoft.com/en-us/dotnet/api/overview/azure) 📚
   - [Azure.Messaging.ServiceBus Namespace](https://learn.microsoft.com/en-us/dotnet/api/azure.messaging.servicebus) 📚*API reference*
+- [Setting up Grafana for Azure Service Bus](https://pmichaels.net/grafana-with-azure-service-bus/grafana-with-azure-service-bus) 📓*Paul Michaels*
 
 ##### Guide for migrating to Azure.Messaging.ServiceBus from Microsoft.Azure.ServiceBus
 
